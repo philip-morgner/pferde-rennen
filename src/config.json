@@ -1,7 +1,6 @@
 {
-  "url_real": "http://www.mabiphmo.de",
-  "url": "http://localhost:8000",
-  "websocketUrl": "ws://127.0.0.1:8000",
+  "websocketUrl": "ws://www.mabiphmo.de:8000",
+  "websocketUrl_dev": "ws://127.0.0.1:8000",
   "raceTrackLength": 10,
   "horses": ["clubs", "spades", "hearts", "diamonds"],
   "symbols": {

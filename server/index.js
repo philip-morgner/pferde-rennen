@@ -6,7 +6,6 @@ const lowdb = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const times = require("ramda").times;
 
-const { horses } = require("./config");
 const shuffle = require("./shuffle");
 
 // db
@@ -63,6 +62,8 @@ const startGame = (gameId) => {
 };
 
 // server logic
+const horses = ["clubs", "spades", "hearts", "diamonds"];
+
 const prepareCards = () => {
   let cards = [];
   horses.forEach((horse) => times(() => cards.push(horse), 12));

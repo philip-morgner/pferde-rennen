@@ -12,13 +12,15 @@ const sendMessage = (data) => {
   client.send(json);
 };
 
+const INITIAL_STATE = {
+  gameId: undefined,
+  cards: [],
+  isAdmin: false,
+  started: false,
+};
+
 class App extends React.Component {
-  state = {
-    gameId: undefined,
-    cards: [],
-    isAdmin: false,
-    started: false,
-  };
+  state = INITIAL_STATE;
 
   componentDidMount() {
     client.onopen = () => {
@@ -34,8 +36,10 @@ class App extends React.Component {
       this.setState(state);
     };
   }
+
   handleStart = () => {
-    const data = { type: "start" };
+    const { gameId } = this.state;
+    const data = { type: "start", gameId };
 
     sendMessage(data);
   };

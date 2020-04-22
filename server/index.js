@@ -62,7 +62,7 @@ const broadcast = (json) => {
 const startGame = (gameId) => {
   console.log("startGame -> gameId", gameId);
   const fire = JSON.stringify({ started: true });
-  Object.keys(users[gameId]).forEach((userId) => {
+  users[gameId].forEach((userId) => {
     clients[userId].sendUTF(fire);
   });
 };
@@ -77,7 +77,7 @@ const prepareCards = () => {
   return shuffle(cards);
 };
 
-const getGameId = () => Math.floor(Math.random() * 1000);
+const getGameId = () => String(Math.floor(Math.random() * 1000));
 
 const createGame = (userId) => {
   const cards = prepareCards();
@@ -85,10 +85,9 @@ const createGame = (userId) => {
   const game = { gameId, cards };
 
   db.get("games").push(game).write();
+
   games[userId] = gameId;
   users[gameId] = [].concat(userId);
-  // users[gameId] = [userId]
-  console.log("createGame -> users", users);
 
   return game;
 };
@@ -122,19 +121,13 @@ wsServer.on("request", function (req) {
       if (type === "join") {
         const game = findGame(gameId);
         const data = { ...game, type };
-        console.log("join -> game found:", game.gameId, type);
 
         users[gameId].push(userId);
-        // clients[userId].sendUTF(JSON.stringify(game));
-        sendTo(userId, data);
 
-        console.log("???? userId", userId);
+        sendTo(userId, data);
       }
       if (type === "start") {
-        console.log("START GAME gameId", gameId);
         startGame(gameId);
-
-        console.log("start -> broadcasted");
       }
       if (type === "restart") {
         removeGame(gameId);
@@ -143,10 +136,6 @@ wsServer.on("request", function (req) {
         const game = createGame(userId);
         const data = { ...game, type: "create" };
 
-        console.log("userId", userId);
-        console.log("create -> game", game);
-
-        // clients[userId].sendUTF(JSON.stringify(game));
         sendTo(userId, data);
       }
     }

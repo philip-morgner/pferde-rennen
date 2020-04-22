@@ -1,5 +1,5 @@
 import React from "react";
-import { times } from "ramda";
+import { times, isNil } from "ramda";
 import {
   raceTrack,
   grid,
@@ -133,9 +133,9 @@ class Game extends React.Component {
 
   render() {
     const { isAdmin, start, started } = this.props;
-    const { winner, paused } = this.state;
+    const { winner, paused, intervalId } = this.state;
 
-    if (started && !isAdmin) {
+    if (started && isNil(intervalId)) {
       this.start();
     }
 

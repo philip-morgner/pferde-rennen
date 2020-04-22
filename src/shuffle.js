@@ -1,6 +1,6 @@
 // The de-facto unbiased shuffle algorithm is the Fisher-Yates (aka Knuth) Shuffle.
 
-export default function shuffle(array) {
+module.exports = function shuffle(array) {
   var currentIndex = array.length,
     temporaryValue,
     randomIndex;
@@ -18,4 +18,4 @@ export default function shuffle(array) {
   }
 
   return array;
-}
+};

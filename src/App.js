@@ -1,13 +1,99 @@
 import React from "react";
-import { layout, titleStyle, linksStyle } from "./styles";
+import { w3cwebsocket as WebSocket } from "websocket";
+import { omit } from "ramda";
+import { layout, titleStyle, linksStyle, buttonStyle } from "./styles";
 import Game from "./Game";
+import { websocketUrl } from "./config";
+
+const client = new WebSocket(websocketUrl);
+
+const sendMessage = (data) => {
+  const json = JSON.stringify(data);
+  client.send(json);
+};
 
 class App extends React.Component {
+  state = {
+    gameId: undefined,
+    cards: [],
+    isAdmin: false,
+    started: false,
+  };
+
+  componentDidMount() {
+    client.onopen = () => {
+      console.log("WebSocket Client Connected");
+    };
+    client.onmessage = (message) => {
+      const data = JSON.parse(message.data);
+      console.log("App -> client.onmessage -> dataFromServer", data);
+      if (data.type === "create") {
+        this.setState({ isAdmin: true });
+      }
+      const state = omit(["type"], data);
+      this.setState(state);
+    };
+  }
+  handleStart = () => {
+    const data = { type: "start" };
+
+    sendMessage(data);
+  };
+
+  handleChange = (e) => {
+    const gameId = e.target.value;
+
+    this.setState({ gameId });
+  };
+
+  handleCreate = async () => {
+    const data = { type: "create" };
+
+    sendMessage(data);
+  };
+
+  handleJoin = async () => {
+    const { gameId } = this.state;
+    const data = { type: "join", gameId };
+
+    sendMessage(data);
+  };
+
+  renderCreateJoinGame = () => {
+    return (
+      <div>
+        <button className={buttonStyle} onClick={this.handleCreate}>
+          Create Game
+        </button>
+        <label htmlFor="input">or join an existing game</label>
+        <input
+          id="input"
+          placeholder="Enter game id..."
+          onChange={this.handleChange}
+        ></input>
+        <button className={buttonStyle} onClick={this.handleJoin}>
+          Join Game
+        </button>
+      </div>
+    );
+  };
+
   render() {
+    const { cards, gameId, isAdmin, started } = this.state;
+    console.log("App -> render -> started", started);
+    console.log("App -> render -> cards", cards);
+
     return (
       <div className={layout}>
         <h1 className={titleStyle}>Pferderennen</h1>
-        <Game />
+        {this.renderCreateJoinGame()}
+        {isAdmin && <h4>Game Id: {gameId}</h4>}
+        <Game
+          cards={cards}
+          start={this.handleStart}
+          started={started}
+          isAdmin={isAdmin}
+        />
         <div className={linksStyle}>
           Icons:
           <a href="https://icons8.com/icon/39707/joker">Joker icon by Icons8</a>

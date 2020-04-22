@@ -1,5 +1,5 @@
 import React from "react";
-import { times, remove } from "ramda";
+import { times } from "ramda";
 import {
   raceTrack,
   grid,
@@ -8,30 +8,22 @@ import {
   centeredStyle,
   gameLayout,
 } from "./styles";
-import shuffle from "./shuffle";
 import { horses, raceTrackLength, symbols } from "./config";
-
-const newGame = () => {
-  let cards = [];
-  horses.forEach((horse) => times(() => cards.push(horse), 12));
-
-  return shuffle(cards);
-};
 
 const INITIAL_STATE = {
   horses: horses.reduce((obj, horse) => ({ ...obj, [horse]: 0 }), {}),
   shownSidecards: [],
   winner: false,
   intervalId: null,
-  cards: newGame(),
   paused: true,
+  count: 0,
 };
 
 class Game extends React.Component {
   state = INITIAL_STATE;
 
   start = () => {
-    const intervalId = setInterval(this.increaseRandomHorsePos, 500);
+    const intervalId = setInterval(this.increaseHorsePos, 500);
 
     this.setState({ intervalId });
   };
@@ -40,37 +32,27 @@ class Game extends React.Component {
     clearInterval(this.state.intervalId);
   };
 
-  toggle = () => {
-    const { paused } = this.state;
-    if (paused) {
-      this.start();
-    } else {
-      this.end();
-    }
-    this.setState((prevState) => ({ paused: !prevState.paused }));
-  };
-
   restart = () => {
     clearInterval(this.state.intervalId);
 
     this.setState({ ...INITIAL_STATE });
   };
 
-  pickRandomHorse = () => {
-    const { cards } = this.state;
-    const randomIndex = Math.floor(Math.random() * cards.length);
-    const randomHorse = cards[randomIndex];
-    const newCards = remove(randomIndex, 1, cards);
+  takeCard = () => {
+    const { cards } = this.props;
+    const { count } = this.state;
 
-    this.setState({ cards: newCards });
+    const first = cards[count];
 
-    return randomHorse;
+    this.setState((prevState) => ({ count: prevState.count + 1 }));
+
+    return first;
   };
 
-  increaseRandomHorsePos = () => {
-    const randomHorse = this.pickRandomHorse();
+  increaseHorsePos = () => {
+    const card = this.takeCard();
 
-    this.update(randomHorse, 1);
+    this.update(card, 1);
   };
 
   update = (horse, n) => {
@@ -95,14 +77,14 @@ class Game extends React.Component {
 
     if (showSidecard) {
       this.setState((prevState) => {
-        const randomHorse = this.pickRandomHorse();
-        const shownSidecards = prevState.shownSidecards.concat(randomHorse);
+        const card = this.takeCard();
+        const shownSidecards = prevState.shownSidecards.concat(card);
 
         return {
           shownSidecards,
           horses: {
             ...prevState.horses,
-            [randomHorse]: prevState.horses[randomHorse] - 1,
+            [card]: prevState.horses[card] - 1,
           },
         };
       });
@@ -150,7 +132,12 @@ class Game extends React.Component {
   };
 
   render() {
+    const { isAdmin, start, started } = this.props;
     const { winner, paused } = this.state;
+
+    if (started && !isAdmin) {
+      this.start();
+    }
 
     if (winner) {
       this.end();
@@ -162,17 +149,19 @@ class Game extends React.Component {
           {this.renderSidecards()}
           {this.renderRaceTrack()}
         </div>
-        <div className={centeredStyle}>
-          {winner ? (
-            <button className={buttonStyle} onClick={this.restart}>
-              Ausgangsposition
-            </button>
-          ) : (
-            <button className={buttonStyle} onClick={this.toggle}>
-              {paused ? "Start" : "Pause"}
-            </button>
-          )}
-        </div>
+        {isAdmin && (
+          <div className={centeredStyle}>
+            {winner ? (
+              <button className={buttonStyle} onClick={this.restart}>
+                Ausgangsposition
+              </button>
+            ) : (
+              <button className={buttonStyle} onClick={start}>
+                {paused ? "Start" : "Pause"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     );
   }

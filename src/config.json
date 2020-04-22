@@ -1,0 +1,11 @@
+{
+  "raceTrackLength": 10,
+  "horses": ["clubs", "spades", "hearts", "diamonds"],
+  "symbols": {
+    "clubs": "https://img.icons8.com/ios/50/000000/ace-of-clubs.png",
+    "spades": "https://img.icons8.com/ios/50/000000/ace-of-spades.png",
+    "hearts": "https://img.icons8.com/ios/50/000000/ace-of-hearts.png",
+    "diamonds": "https://img.icons8.com/ios/50/000000/ace-of-diamonds.png",
+    "hidden": "https://img.icons8.com/ios-filled/50/000000/joker-card.png"
+  }
+}

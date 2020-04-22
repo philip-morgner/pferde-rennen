@@ -1,4 +1,5 @@
-const http = require("http");
+const https = require("https");
+const fs = require("fs");
 const webSocketServer = require("websocket").server;
 const express = require("express");
 const cors = require("cors");
@@ -7,7 +8,12 @@ const FileSync = require("lowdb/adapters/FileSync");
 const times = require("ramda").times;
 
 const shuffle = require("./shuffle");
+const config = require("./config");
 
+const ssl_credentials = {
+  key: fs.readFileSync(config.ssl.key),
+  cert: fs.readFileSync(config.ssl.cert),
+};
 // db
 const adapter = new FileSync("db.json");
 const db = lowdb(adapter);
@@ -19,9 +25,8 @@ const app = express();
 app.use(cors());
 
 // websocket setup
-const webSocketsServerPort = 8000;
-const server = http.createServer(app);
-server.listen(webSocketsServerPort);
+const server = https.createServer(ssl_credentials);
+server.listen(config.server.post);
 const wsServer = new webSocketServer({
   httpServer: server,
 });

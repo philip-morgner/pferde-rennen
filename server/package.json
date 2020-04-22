@@ -10,5 +10,8 @@
     "lowdb": "^1.0.0",
     "ramda": "^0.27.0",
     "websocket": "^1.0.31"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
 }

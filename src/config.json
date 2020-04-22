@@ -1,5 +1,5 @@
 {
-  "websocketUrl": "ws://www.mabiphmo.de:8000",
+  "websocketUrl": "wss://games.mabiphmo.de:8000",
   "websocketUrl_dev": "ws://127.0.0.1:8000",
   "raceTrackLength": 10,
   "horses": ["clubs", "spades", "hearts", "diamonds"],

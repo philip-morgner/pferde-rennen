@@ -26,7 +26,7 @@ app.use(cors());
 
 // websocket setup
 const server = https.createServer(ssl_credentials);
-server.listen(config.server.post);
+server.listen(config.server.port);
 const wsServer = new webSocketServer({
   httpServer: server,
 });
@@ -60,6 +60,7 @@ const broadcast = (json) => {
 };
 
 const startGame = (gameId) => {
+  console.log("startGame -> gameId", gameId);
   const fire = JSON.stringify({ started: true });
   Object.keys(users[gameId]).forEach((userId) => {
     clients[userId].sendUTF(fire);
@@ -86,6 +87,8 @@ const createGame = (userId) => {
   db.get("games").push(game).write();
   games[userId] = gameId;
   users[gameId] = [].concat(userId);
+  // users[gameId] = [userId]
+  console.log("createGame -> users", users);
 
   return game;
 };
@@ -128,6 +131,7 @@ wsServer.on("request", function (req) {
         console.log("???? userId", userId);
       }
       if (type === "start") {
+        console.log("START GAME gameId", gameId);
         startGame(gameId);
 
         console.log("start -> broadcasted");

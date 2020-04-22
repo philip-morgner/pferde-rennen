@@ -1,7 +1,7 @@
 {
   "ssl": {
-    "key": "/etc/letsencrypt/live/food.mabiphmo.de/privkey.pem",
-    "cert": "/etc/letsencrypt/live/food.mabiphmo.de/cert.pem"
+    "key": "/etc/letsencrypt/live/games.mabiphmo.de/privkey.pem",
+    "cert": "/etc/letsencrypt/live/games.mabiphmo.de/cert.pem"
   },
   "server": {
     "port": 8000

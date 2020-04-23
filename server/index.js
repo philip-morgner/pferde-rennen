@@ -1,19 +1,20 @@
 const https = require("https");
+const http_dev = require("http");
 const fs = require("fs");
 const webSocketServer = require("websocket").server;
 const express = require("express");
 const cors = require("cors");
 const lowdb = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
-const times = require("ramda").times;
+const R = require("ramda");
 
 const shuffle = require("./shuffle");
 const config = require("./config");
 
-const ssl_credentials = {
-  key: fs.readFileSync(config.ssl.key),
-  cert: fs.readFileSync(config.ssl.cert),
-};
+// const ssl_credentials = {
+//   key: fs.readFileSync(config.ssl.key),
+//   cert: fs.readFileSync(config.ssl.cert),
+// };
 // db
 const adapter = new FileSync("db.json");
 const db = lowdb(adapter);
@@ -25,10 +26,12 @@ const app = express();
 app.use(cors());
 
 // websocket setup
-const server = https.createServer(ssl_credentials);
-server.listen(config.server.port);
+// const server = https.createServer(ssl_credentials);
+const server_dev = http_dev.createServer();
+
+server_dev.listen(config.server.port);
 const wsServer = new webSocketServer({
-  httpServer: server,
+  httpServer: server_dev,
 });
 
 // all active connections
@@ -72,7 +75,7 @@ const horses = ["clubs", "spades", "hearts", "diamonds"];
 
 const prepareCards = () => {
   let cards = [];
-  horses.forEach((horse) => times(() => cards.push(horse), 12));
+  horses.forEach((horse) => R.times(() => cards.push(horse), 12));
 
   return shuffle(cards);
 };
@@ -121,10 +124,13 @@ wsServer.on("request", function (req) {
       if (type === "join") {
         const game = findGame(gameId);
         const data = { ...game, type };
+        if (R.isNil(game)) {
+          sendTo(userId, { type: "error", message: "Game id not found!" });
+        } else {
+          users[gameId].push(userId);
 
-        users[gameId].push(userId);
-
-        sendTo(userId, data);
+          sendTo(userId, data);
+        }
       }
       if (type === "start") {
         startGame(gameId);

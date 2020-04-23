@@ -22,6 +22,15 @@ const INITIAL_STATE = {
 class Game extends React.Component {
   state = INITIAL_STATE;
 
+  componentDidUpdate() {
+    const { started } = this.props;
+    const { intervalId } = this.state;
+
+    if (started && isNil(intervalId)) {
+      this.start();
+    }
+  }
+
   start = () => {
     const intervalId = setInterval(this.increaseHorsePos, 500);
 
@@ -132,12 +141,8 @@ class Game extends React.Component {
   };
 
   render() {
-    const { isAdmin, start, started } = this.props;
-    const { winner, paused, intervalId } = this.state;
-
-    if (started && isNil(intervalId)) {
-      this.start();
-    }
+    const { isAdmin, start } = this.props;
+    const { winner, paused } = this.state;
 
     if (winner) {
       this.end();
@@ -161,6 +166,11 @@ class Game extends React.Component {
               </button>
             )}
           </div>
+        )}
+        {winner && (
+          <button className={buttonStyle} onClick={window.location.reload}>
+            Neues Rennen
+          </button>
         )}
       </div>
     );

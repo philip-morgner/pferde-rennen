@@ -34,13 +34,15 @@ export const sidecardStyle = (show, col) => css`
 export const buttonStyle = css({
   display: "flex",
   backgroundColor: "#F39C12",
-  margin: "16px",
   padding: "8px 16px",
   border: "1px solid #F39C12",
   justifyContent: "center",
   boxShadow: "2px 2px 2px 1px rgba(0, 0, 0, 0.2)",
+  marginTop: "16px",
   width: "128px",
   height: "32px",
+  color: "white",
+  cursor: "pointer",
   ":disabled": {
     color: "white",
     backgroundColor: "#F8C471",
@@ -68,3 +70,36 @@ export const gameLayout = css({
 export const titleStyle = css({
   margin: "28px auto",
 });
+
+export const buttonInputGroup = css({
+  display: "flex",
+  justifyContent: "center",
+  height: "32px",
+  boxShadow: "2px 2px 2px 1px rgba(0, 0, 0, 0.2)",
+  margin: "15% auto",
+  width: "fit-content",
+  "& input": {
+    paddingLeft: 10,
+    fontSize: "55%",
+  },
+  "& button": {
+    // remove box shadow
+    boxShadow: "0px 0px rgba(0, 0, 0, 0.2) !important",
+    // remove margin top
+    marginTop: "0px !important",
+  },
+  "& button:first-of-type": {
+    borderRight: "1px solid #FDFEFE",
+  },
+});
+
+export const errorStyle = (hasError) =>
+  css(
+    hasError && {
+      border: "1px solid #E74C3C",
+      "&::placeholder": {
+        color: "#E74C3C",
+        opacity: 1,
+      },
+    }
+  );

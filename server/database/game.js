@@ -11,31 +11,28 @@ class GameDB extends Database {
   }
 
   #get = () => {
-    return this.db.get("games");
+    return this.db.get("games").value();
   };
 
   find = (gameId) => {
-    const games = this.#get();
-
-    return games.find({ gameId }).value();
+    return this.db.get("games").find({ gameId }).value();
   };
 
   create = () => {
     const cards = this.#prepareCards();
     const gameId = this.#getGameId();
-    const games = this.#get();
+    console.log("GameDB -> create -> gameId", gameId);
 
     const game = { gameId, cards };
 
-    games.push(game).write();
+    console.log("GameDB -> create -> game", game);
+    this.db.get("games").push(game).write();
 
     return gameId;
   };
 
   remove = (gameId) => {
-    const games = this.#get();
-
-    games.remove({ gameId }).write();
+    this.db.get("games").remove({ gameId }).write();
   };
 
   #prepareCards = () => {

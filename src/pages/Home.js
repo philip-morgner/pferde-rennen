@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { isEmpty } from "ramda";
 
 import {
@@ -12,37 +12,28 @@ import {
 
 const INITIAL_STATE = {
   gameId: "",
-  cards: [],
-  isAdmin: false,
-  started: false,
   error: "",
 };
 
 class App extends React.Component {
   state = INITIAL_STATE;
 
-  // think about it
-  // probably this function will not always be invoked, thus not updating the state
-  // probably it is possible when client is passed as prop -> change in props lead to rerender
-  componentDidMount() {
-    const state = this.props.client.getState();
-
-    this.setState(state);
-  }
-
   componentDidUpdate() {
-    const state = this.props.client.getState();
+    const {
+      response: { error, gameId },
+      history,
+    } = this.props;
 
-    this.setState(state);
+    const { error: prevErr } = this.state;
+
+    if (!isEmpty(gameId)) {
+      const pathname = "/" + gameId;
+      history.push(pathname);
+    }
+    if (!isEmpty(error) && isEmpty(prevErr)) {
+      this.setState({ error });
+    }
   }
-
-  handleStart = () => {
-    const { client } = this.props;
-    const { gameId } = this.state;
-    const data = { type: "start", gameId };
-
-    client.sendMessage(data);
-  };
 
   handleChange = (e) => {
     const gameId = e.target.value;
@@ -50,14 +41,14 @@ class App extends React.Component {
     this.setState({ gameId });
   };
 
-  handleCreate = async () => {
+  handleCreate = () => {
     const { client } = this.props;
     const data = { type: "create" };
 
     client.sendMessage(data);
   };
 
-  handleJoin = async () => {
+  handleJoin = () => {
     const { client } = this.props;
     const { gameId } = this.state;
     const data = { type: "join", gameId };
@@ -65,22 +56,10 @@ class App extends React.Component {
     client.sendMessage(data);
   };
 
-  renderCreateButton = () => (
-    <button className={buttonStyle} onClick={this.handleCreate}>
-      Create Game
-    </button>
-  );
-
-  renderJoinButton = () => (
-    <button className={buttonStyle} onClick={this.handleJoin}>
-      Join Game
-    </button>
-  );
-
   render() {
     const { gameId, error } = this.state;
+
     const hasError = !isEmpty(error);
-    const pathname = "/" + gameId;
 
     return (
       <div className={layout}>
@@ -93,22 +72,12 @@ class App extends React.Component {
             autoFocus
             value={gameId}
           />
-          <Link
-            to={{
-              pathname,
-              /* actually it shouldnt be necessary to pass the state here */
-              state: this.state,
-            }}
-            component={this.renderJoinButton()}
-          ></Link>
-          <Link
-            to={{
-              pathname,
-              /* actually it shouldnt be necessary to pass the state here */
-              state: this.state,
-            }}
-            component={this.renderCreateButton()}
-          ></Link>
+          <button className={buttonStyle} onClick={this.handleJoin}>
+            Join Game
+          </button>
+          <button className={buttonStyle} onClick={this.handleCreate}>
+            Create Game
+          </button>
         </div>
       </div>
     );

@@ -1,7 +1,7 @@
 const R = require("ramda");
+const Boom = require("boom");
 
 const GameDB = require("../database/game");
-const Exception = require("../errors");
 const Middleware = require("./index");
 
 module.exports = class GameMW extends Middleware {
@@ -63,7 +63,7 @@ module.exports = class GameMW extends Middleware {
       const data = game.find(gameId);
 
       if (R.isNil(data)) {
-        throw new Exception.NotFound();
+        throw Boom.notFound("Game Id:" + gameId + " not found");
       }
       const response = R.mergeAll([data, { type: "join" }]);
 

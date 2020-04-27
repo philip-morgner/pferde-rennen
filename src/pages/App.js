@@ -1,43 +1,25 @@
 import React from "react";
-import { w3cwebsocket as WebSocket } from "websocket";
-import { omit } from "ramda";
+
 import { layout, titleStyle, linksStyle } from "../styles";
 import Game from "../Game";
-import { websocketUrl_dev as websocketUrl } from "../config";
-
-const client = new WebSocket(websocketUrl);
-
-const sendMessage = (data) => {
-  const json = JSON.stringify(data);
-  client.send(json);
-};
-
-const INITIAL_STATE = {
-  gameId: "",
-  cards: [],
-  isAdmin: false,
-  started: false,
-  error: "",
-};
 
 class App extends React.Component {
-  state = INITIAL_STATE;
-
-  componentDidMount() {
-    const state = this.props.client.getState();
-
-    this.setState(state);
-  }
-
-  handleStart = () => {
-    const { gameId } = this.props.params.match;
-    console.log(
-      "App -> handleStart ->  this.props.params.match",
-      this.props.params.match
-    );
+  handleStart = (client, gameId) => () => {
     const data = { type: "start", gameId };
 
-    sendMessage(data);
+    client.sendMessage(data);
+  };
+
+  handleRestart = (client, gameId) => () => {
+    const data = { type: "restart", gameId };
+    console.log("restart", data);
+
+    client.sendMessage(data);
+  };
+
+  handleLeave = (client, gameId) => () => {
+    console.log("leave", gameId);
+    this.props.history.goBack();
   };
 
   renderIconCreadits = () => {
@@ -62,7 +44,7 @@ class App extends React.Component {
   };
 
   render() {
-    const { cards, gameId, isAdmin, started } = this.state;
+    const { client, cards, gameId, isAdmin, started } = this.props;
 
     return (
       <div className={layout}>
@@ -70,7 +52,9 @@ class App extends React.Component {
         <h4>Game Id: {gameId}</h4>
         <Game
           cards={cards}
-          start={this.handleStart}
+          start={this.handleStart(client, gameId)}
+          restart={this.handleStart(client, gameId)}
+          leave={this.handleLeave(client, gameId)}
           started={started}
           isAdmin={isAdmin}
         />

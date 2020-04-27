@@ -3,7 +3,7 @@
   "websocketUrl_dev": "ws://127.0.0.1:8000",
   "raceTrackLength": 10,
   "horses": ["clubs", "spades", "hearts", "diamonds"],
-  "symbols": {
+  "icons": {
     "clubs": "https://img.icons8.com/ios/50/000000/ace-of-clubs.png",
     "spades": "https://img.icons8.com/ios/50/000000/ace-of-spades.png",
     "hearts": "https://img.icons8.com/ios/50/000000/ace-of-hearts.png",

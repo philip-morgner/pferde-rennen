@@ -1,4 +1,5 @@
 const https = require("https");
+const http = require("http");
 const fs = require("fs");
 const webSocketServer = require("websocket").server;
 const express = require("express");
@@ -7,25 +8,27 @@ const cors = require("cors");
 const config = require("./config");
 const GameMW = require("./middleware/game");
 
-const ssl_credentials = {
-  key: fs.readFileSync(config.ssl.key),
-  cert: fs.readFileSync(config.ssl.cert),
-};
-
-// db
-const mw = new GameMW();
-
 // express
 const app = express();
 app.use(cors());
 
-// websocket setup
-const server = https.createServer(ssl_credentials);
+// secure websocket server setup
+// const ssl_credentials = {
+//   key: fs.readFileSync(config.ssl.key),
+//   cert: fs.readFileSync(config.ssl.cert),
+// };
+// const server = https.createServer(ssl_credentials);
+
+// dev websocket server setup
+const server = http.createServer(app);
 server.listen(config.server.port);
 
 const wsServer = new webSocketServer({
   httpServer: server,
 });
+
+// db
+const mw = new GameMW();
 
 // websocket
 wsServer.on("request", function (req) {

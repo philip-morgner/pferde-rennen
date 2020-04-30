@@ -1,6 +1,8 @@
 import React from "react";
-import { Link, Redirect } from "react-router-dom";
 import { isEmpty } from "ramda";
+
+import history from "../utils/history";
+import client from "../utils/client";
 
 import {
   layout,
@@ -15,24 +17,25 @@ const INITIAL_STATE = {
   error: "",
 };
 
+const validate = (gameId, error, prevError) => {
+  if (!isEmpty(gameId)) {
+    const pathname = "/" + gameId;
+    history.push(pathname);
+  }
+  if (!isEmpty(error) && isEmpty(prevError)) {
+    return { error, gameId: "" };
+  }
+  return null;
+};
+
 class App extends React.Component {
   state = INITIAL_STATE;
 
-  componentDidUpdate() {
-    const {
-      response: { error, gameId },
-      history,
-    } = this.props;
+  static getDerivedStateFromProps(props, state) {
+    const { gameId, error } = props.response;
+    const { error: prevErr } = state;
 
-    const { error: prevErr } = this.state;
-
-    if (!isEmpty(gameId)) {
-      const pathname = "/" + gameId;
-      history.push(pathname);
-    }
-    if (!isEmpty(error) && isEmpty(prevErr)) {
-      this.setState({ error });
-    }
+    return validate(gameId, error, prevErr);
   }
 
   handleChange = (e) => {
@@ -42,14 +45,12 @@ class App extends React.Component {
   };
 
   handleCreate = () => {
-    const { client } = this.props;
     const data = { type: "create" };
 
     client.sendMessage(data);
   };
 
   handleJoin = () => {
-    const { client } = this.props;
     const { gameId } = this.state;
     const data = { type: "join", gameId };
 

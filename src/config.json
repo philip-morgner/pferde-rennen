@@ -1,7 +1,6 @@
 {
   "websocketUrl": "wss://games.mabiphmo.de:8000",
-  "websocketUrl_dev": "ws://127.0.0.1:8000",
-  "raceTrackLength": 10,
+  "raceTrackLength": 9,
   "horses": ["clubs", "spades", "hearts", "diamonds"],
   "icons": {
     "clubs": "https://img.icons8.com/ios/50/000000/ace-of-clubs.png",

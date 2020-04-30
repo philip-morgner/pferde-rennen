@@ -7,13 +7,26 @@ const Middleware = require("./index");
 module.exports = class GameMW extends Middleware {
   constructor(props) {
     super(props);
-    // all active games by user id
+    // all active games by creators' user id
     this.games = {};
-    // all users for each game
+    // all user ids for each game id
     this.users = {};
 
-    this.game = new GameDB();
+    this.gameDb = new GameDB();
   }
+
+  saveGame = (userId, gameId) => {
+    // save creator's user id
+    Object.assign(this.games, { [userId]: gameId });
+    // enable game to join
+    Object.assign(this.users, { [gameId]: [] });
+  };
+
+  addParticipant = (userId, gameId) => {
+    const { users } = this;
+
+    users[gameId] = users[gameId].concat(userId);
+  };
 
   getGameId = (userId) => {
     return this.games[userId];
@@ -22,7 +35,7 @@ module.exports = class GameMW extends Middleware {
   removeGame = (userId) => {
     const gameId = this.getGameId(userId);
 
-    this.game.remove(gameId);
+    this.gameDb.remove(gameId);
     delete this.games[userId];
   };
 
@@ -43,14 +56,22 @@ module.exports = class GameMW extends Middleware {
     this.sendToGameMembers(gameId, start);
   };
 
+  restartGame = (gameId) => {
+    const { gameDb } = this;
+
+    const cards = gameDb.update(gameId);
+
+    this.sendToGameMembers(gameId, { cards, type: "restart" });
+  };
+
   createGame = (userId) => {
-    const { games, users, game } = this;
+    const { gameDb } = this;
 
-    const gameId = game.create();
-    const data = game.find(gameId);
+    const gameId = gameDb.create();
+    const data = gameDb.find(gameId);
 
-    games[userId] = gameId;
-    users[gameId] = [].concat(userId);
+    this.saveGame(userId, gameId);
+    this.addParticipant(userId, gameId);
 
     const response = R.mergeAll([data, { type: "create" }]);
 
@@ -58,22 +79,42 @@ module.exports = class GameMW extends Middleware {
   };
 
   joinGame = (userId, gameId) => {
-    const { users, game } = this;
+    const { gameDb } = this;
     try {
-      const data = game.find(gameId);
+      const data = gameDb.find(gameId);
 
       if (R.isNil(data)) {
-        throw Boom.notFound("Game Id:" + gameId + " not found");
+        throw Boom.notFound("Game id: " + gameId + " not found");
       }
       const response = R.mergeAll([data, { type: "join" }]);
 
-      users[gameId].push(userId);
+      this.addParticipant(userId, gameId);
 
       this.sendTo(userId, response);
     } catch (err) {
       const data = { type: "error", message: err.message };
 
       this.sendTo(userId, data);
+    }
+  };
+
+  leaveGame = (userId, gameId) => {
+    const { users } = this;
+    if (!R.isNil(users[gameId])) {
+      users[gameId] = users[gameId].filter((id) => id !== userId);
+    }
+    this.sendTo(userId, { type: "leave", gameId: "" });
+
+    try {
+      const isCreator = Object.keys(this.games).includes(userId);
+
+      if (isCreator) {
+        throw Boom.notFound("Creator of game id: " + gameId + " left");
+      }
+    } catch (err) {
+      const data = { type: "error", message: err.message };
+
+      this.sendToGameMembers(gameId, data);
     }
   };
 };

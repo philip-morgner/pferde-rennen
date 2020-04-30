@@ -1,14 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Route, BrowserRouter as Router } from "react-router-dom";
-import { mergeAll, omit, isEmpty } from "ramda";
+import { Route, Router } from "react-router-dom";
+import { mergeAll, omit, pick } from "ramda";
 
-import { websocketUrl_dev as websocketUrl } from "./config";
-
+import history from "./utils/history";
+import client from "./utils/client";
+// pages
 import App from "./pages/App";
 import Home from "./pages/Home";
 
-const INITIAL_GAME_DATA = {
+const INITIAL_STATE = {
   gameId: "",
   cards: [],
   started: false,
@@ -17,25 +18,12 @@ const INITIAL_GAME_DATA = {
 };
 
 class AppClient extends React.Component {
-  state = {
-    client: new WebSocket(websocketUrl),
-    ...INITIAL_GAME_DATA,
-  };
+  state = INITIAL_STATE;
 
   componentDidMount() {
-    const { client } = this.state;
-    client.onopen = () => {
-      console.log("WebSocket Client Connected");
-    };
-    client.onmessage = this.handleOnMessage;
-    client.sendMessage = this.sendMessage;
+    // initialize the clients onmessage
+    client.setUpdateFunc(this.handleOnMessage);
   }
-
-  sendMessage = (data) => {
-    const json = JSON.stringify(data);
-
-    this.state.client.send(json);
-  };
 
   handleOnMessage = (message) => {
     try {
@@ -47,6 +35,12 @@ class AppClient extends React.Component {
       if (data.type === "create") {
         this.setState({ isAdmin: true });
       }
+      if (data.type === "restart") {
+        const { cards } = data;
+
+        this.setState({ started: false, cards });
+      }
+
       const gameData = mergeAll([omit(["type"], data), { error: "" }]);
 
       this.setState((prevState) => ({ ...prevState, ...gameData }));
@@ -55,31 +49,20 @@ class AppClient extends React.Component {
     }
   };
 
-  redirect = (pathname) => {
-    this.props.history.push(pathname);
-  };
-
   render() {
-    const { client, error, gameId } = this.state;
-    const gameData = omit(["client"], this.state);
-
-    const response = { gameId, error };
+    const response = pick(["gameId", "error"], this.state);
 
     return (
-      <Router>
+      <Router history={history}>
         <Route
           exact
           path="/"
-          render={(routeProps) => (
-            <Home client={client} response={response} {...routeProps} />
-          )}
+          render={(routeProps) => <Home {...routeProps} response={response} />}
         />
         <Route
           exact
           path="/:gameId"
-          render={(routeProps) => (
-            <App client={client} {...routeProps} {...gameData} />
-          )}
+          render={(routeProps) => <App {...routeProps} {...this.state} />}
         />
       </Router>
     );

@@ -1,25 +1,30 @@
 import React from "react";
+import { Redirect } from "react-router-dom";
+import { isEmpty } from "ramda";
 
 import { layout, titleStyle, linksStyle } from "../styles";
 import Game from "../Game";
 
+import client from "../utils/client";
+import history from "../utils/history";
+
 class App extends React.Component {
-  handleStart = (client, gameId) => () => {
+  handleStart = (gameId) => () => {
     const data = { type: "start", gameId };
 
     client.sendMessage(data);
   };
 
-  handleRestart = (client, gameId) => () => {
+  handleRestart = (gameId) => () => {
     const data = { type: "restart", gameId };
-    console.log("restart", data);
 
     client.sendMessage(data);
   };
 
-  handleLeave = (client, gameId) => () => {
-    console.log("leave", gameId);
-    this.props.history.goBack();
+  handleLeave = (gameId) => () => {
+    client.sendMessage({ type: "leave", gameId });
+
+    history.replace("/");
   };
 
   renderIconCreadits = () => {
@@ -44,7 +49,11 @@ class App extends React.Component {
   };
 
   render() {
-    const { client, cards, gameId, isAdmin, started } = this.props;
+    const { cards, gameId, isAdmin, started } = this.props;
+
+    if (isEmpty(gameId)) {
+      return <Redirect replace to="/" />;
+    }
 
     return (
       <div className={layout}>
@@ -52,9 +61,9 @@ class App extends React.Component {
         <h4>Game Id: {gameId}</h4>
         <Game
           cards={cards}
-          start={this.handleStart(client, gameId)}
-          restart={this.handleStart(client, gameId)}
-          leave={this.handleLeave(client, gameId)}
+          start={this.handleStart(gameId)}
+          restart={this.handleRestart(gameId)}
+          leave={this.handleLeave(gameId)}
           started={started}
           isAdmin={isAdmin}
         />

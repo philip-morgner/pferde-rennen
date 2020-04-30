@@ -21,6 +21,13 @@ const INITIAL_STATE = {
 class Game extends React.Component {
   state = INITIAL_STATE;
 
+  static getDerivedStateFromProps(props, state) {
+    if (state.winner && !props.started) {
+      return INITIAL_STATE;
+    }
+    return null;
+  }
+
   componentDidUpdate() {
     const { started } = this.props;
     const { intervalId } = this.state;
@@ -32,6 +39,10 @@ class Game extends React.Component {
     this.checkSidecard();
   }
 
+  componentWillUnmount() {
+    this.end();
+  }
+
   start = () => {
     const intervalId = setInterval(this.increaseHorsePos, 500);
 
@@ -40,12 +51,6 @@ class Game extends React.Component {
 
   end = () => {
     clearInterval(this.state.intervalId);
-  };
-
-  restart = () => {
-    clearInterval(this.state.intervalId);
-
-    this.setState({ ...INITIAL_STATE });
   };
 
   takeCard = () => {
@@ -151,9 +156,12 @@ class Game extends React.Component {
           {this.renderSidecards()}
           {this.renderRaceTrack()}
         </div>
-        {isAdmin ? (
-          <div className={centeredStyle}>
-            {winner ? (
+        <div className={centeredStyle}>
+          <button className={buttonStyle} onClick={leave}>
+            Zurück
+          </button>
+          {isAdmin &&
+            (winner ? (
               <button className={buttonStyle} onClick={restart}>
                 Neues Rennen
               </button>
@@ -161,13 +169,8 @@ class Game extends React.Component {
               <button className={buttonStyle} onClick={start}>
                 Start
               </button>
-            )}
-          </div>
-        ) : (
-          <button className={buttonStyle} onClick={leave}>
-            Zurück
-          </button>
-        )}
+            ))}
+        </div>
       </div>
     );
   }

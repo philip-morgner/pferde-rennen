@@ -21,14 +21,20 @@ class GameDB extends Database {
   create = () => {
     const cards = this.#prepareCards();
     const gameId = this.#getGameId();
-    console.log("GameDB -> create -> gameId", gameId);
 
     const game = { gameId, cards };
 
-    console.log("GameDB -> create -> game", game);
     this.db.get("games").push(game).write();
 
     return gameId;
+  };
+
+  update = (gameId) => {
+    const cards = this.#prepareCards();
+
+    this.db.get("games").find({ gameId }).assign({ cards }).write();
+
+    return cards;
   };
 
   remove = (gameId) => {

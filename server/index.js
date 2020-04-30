@@ -1,33 +1,23 @@
 const https = require("https");
-const http = require("http");
 const fs = require("fs");
 const webSocketServer = require("websocket").server;
-const express = require("express");
-const cors = require("cors");
 
 const config = require("./config");
 const GameMW = require("./middleware/game");
 
-// express
-const app = express();
-app.use(cors());
-
 // secure websocket server setup
-// const ssl_credentials = {
-//   key: fs.readFileSync(config.ssl.key),
-//   cert: fs.readFileSync(config.ssl.cert),
-// };
-// const server = https.createServer(ssl_credentials);
+const ssl_credentials = {
+  key: fs.readFileSync(config.ssl.key),
+  cert: fs.readFileSync(config.ssl.cert),
+};
 
-// dev websocket server setup
-const server = http.createServer(app);
-server.listen(config.server.port);
+const server = https.createServer(ssl_credentials);
 
 const wsServer = new webSocketServer({
   httpServer: server,
 });
 
-// db
+// middleware
 const mw = new GameMW();
 
 // websocket
@@ -37,15 +27,13 @@ wsServer.on("request", function (req) {
   // rewrite this part of the code to accept only the requests from allowed origin
   const connection = req.accept(null, req.origin);
   const userId = mw.addClient(connection);
-  console.log("User Id", userId);
+  console.log("User Id", userId, " assigned to", req.origin);
 
   //   on message
   connection.on("message", function (message) {
     console.log("message", message);
     if (message.type === "utf8") {
-      const clientData = JSON.parse(message.utf8Data);
-      const { type, gameId } = clientData;
-      console.log("clientData", clientData);
+      const { type, gameId } = JSON.parse(message.utf8Data);
 
       if (type === "join") {
         mw.joinGame(userId, gameId);
@@ -54,10 +42,13 @@ wsServer.on("request", function (req) {
         mw.startGame(gameId);
       }
       if (type === "restart") {
-        mw.removeGame(userId);
+        mw.restartGame(gameId);
       }
-      if (type === "create" || type === "restart") {
+      if (type === "create") {
         mw.createGame(userId);
+      }
+      if (type === "leave") {
+        mw.leaveGame(userId, gameId);
       }
     }
   });

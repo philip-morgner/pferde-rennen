@@ -60,7 +60,7 @@ export const linksStyle = css({
 
 export const centeredStyle = css({
   display: "flex",
-  justifyContent: "center",
+  justifyContent: "space-between",
 });
 
 export const gameLayout = css({

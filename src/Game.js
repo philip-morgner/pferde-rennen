@@ -8,19 +8,25 @@ import {
   centeredStyle,
   gameLayout,
 } from "./styles";
-import { horses, raceTrackLength, symbols } from "./config";
+import { horses, raceTrackLength, icons } from "./config";
 
 const INITIAL_STATE = {
   horses: horses.reduce((obj, horse) => ({ ...obj, [horse]: 0 }), {}),
   shownSidecards: [],
   winner: false,
   intervalId: null,
-  paused: true,
   count: 0,
 };
 
 class Game extends React.Component {
   state = INITIAL_STATE;
+
+  static getDerivedStateFromProps(props, state) {
+    if (state.winner && !props.started) {
+      return INITIAL_STATE;
+    }
+    return null;
+  }
 
   componentDidUpdate() {
     const { started } = this.props;
@@ -29,6 +35,12 @@ class Game extends React.Component {
     if (started && isNil(intervalId)) {
       this.start();
     }
+
+    this.checkSidecard();
+  }
+
+  componentWillUnmount() {
+    this.end();
   }
 
   start = () => {
@@ -41,41 +53,32 @@ class Game extends React.Component {
     clearInterval(this.state.intervalId);
   };
 
-  restart = () => {
-    clearInterval(this.state.intervalId);
-
-    this.setState({ ...INITIAL_STATE });
-  };
-
   takeCard = () => {
     const { cards } = this.props;
     const { count } = this.state;
 
-    const first = cards[count];
-
-    this.setState((prevState) => ({ count: prevState.count + 1 }));
-
-    return first;
+    return cards[count];
   };
 
   increaseHorsePos = () => {
     const card = this.takeCard();
 
-    this.update(card, 1);
+    this.update(card);
   };
 
-  update = (horse, n) => {
-    this.setState(({ horses: prevStateHorses }) => {
-      const pos = prevStateHorses[horse] + n;
+  update = (horse) => {
+    this.setState((prevState) => {
+      const pos = prevState.horses[horse] + 1;
 
       return {
         horses: {
-          ...prevStateHorses,
+          ...prevState.horses,
           [horse]: pos,
         },
+        count: prevState.count + 1,
         winner: pos === raceTrackLength,
       };
-    }, this.checkSidecard);
+    });
   };
 
   checkSidecard = () => {
@@ -95,6 +98,7 @@ class Game extends React.Component {
             ...prevState.horses,
             [card]: prevState.horses[card] - 1,
           },
+          count: prevState.count + 1,
         };
       });
     }
@@ -111,7 +115,7 @@ class Game extends React.Component {
 
     return (
       <div key={i} className={sidecardStyle(show, i)}>
-        <img src={symbols[value]} alt={value} />
+        <img src={icons[value]} alt={value} />
       </div>
     );
   };
@@ -125,9 +129,7 @@ class Game extends React.Component {
 
     return (
       <div key={`${row}-${col}`} className={grid(row + 2, col + 1)}>
-        {horses[horse] === col ? (
-          <img src={symbols[horse]} alt={horse} />
-        ) : null}
+        {horses[horse] === col ? <img src={icons[horse]} alt={horse} /> : null}
       </div>
     );
   };
@@ -141,8 +143,8 @@ class Game extends React.Component {
   };
 
   render() {
-    const { isAdmin, start } = this.props;
-    const { winner, paused } = this.state;
+    const { isAdmin, start, restart, leave } = this.props;
+    const { winner } = this.state;
 
     if (winner) {
       this.end();
@@ -154,24 +156,21 @@ class Game extends React.Component {
           {this.renderSidecards()}
           {this.renderRaceTrack()}
         </div>
-        {isAdmin && (
-          <div className={centeredStyle}>
-            {winner ? (
-              <button className={buttonStyle} onClick={this.restart}>
-                Ausgangsposition
+        <div className={centeredStyle}>
+          <button className={buttonStyle} onClick={leave}>
+            Zurück
+          </button>
+          {isAdmin &&
+            (winner ? (
+              <button className={buttonStyle} onClick={restart}>
+                Neues Rennen
               </button>
             ) : (
               <button className={buttonStyle} onClick={start}>
-                {paused ? "Start" : "Pause"}
+                Start
               </button>
-            )}
-          </div>
-        )}
-        {winner && (
-          <button className={buttonStyle} onClick={window.location.reload}>
-            Neues Rennen
-          </button>
-        )}
+            ))}
+        </div>
       </div>
     );
   }

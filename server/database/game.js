@@ -10,15 +10,15 @@ class GameDB extends Database {
     this.horses = ["clubs", "spades", "hearts", "diamonds"];
   }
 
-  #get = () => {
+  #get = function () {
     return this.db.get("games").value();
   };
 
-  find = (gameId) => {
+  find = function (gameId) {
     return this.db.get("games").find({ gameId }).value();
   };
 
-  create = () => {
+  create = function () {
     const cards = this.#prepareCards();
     const gameId = this.#getGameId();
 
@@ -29,7 +29,7 @@ class GameDB extends Database {
     return gameId;
   };
 
-  update = (gameId) => {
+  update = function (gameId) {
     const cards = this.#prepareCards();
 
     this.db.get("games").find({ gameId }).assign({ cards }).write();
@@ -37,18 +37,20 @@ class GameDB extends Database {
     return cards;
   };
 
-  remove = (gameId) => {
+  remove = function (gameId) {
     this.db.get("games").remove({ gameId }).write();
   };
 
-  #prepareCards = () => {
+  #prepareCards = function () {
     let cards = [];
     this.horses.forEach((horse) => R.times(() => cards.push(horse), 12));
 
     return shuffle(cards);
   };
 
-  #getGameId = () => Math.floor(Math.random() * 1000).toString();
+  #getGameId = function () {
+    return Math.floor(Math.random() * 1000).toString();
+  };
 }
 
 module.exports = GameDB;

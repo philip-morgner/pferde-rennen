@@ -4,7 +4,7 @@ module.exports = class Middleware {
     this.clients = {};
   }
 
-  #getUniqueUserId = () => {
+  #getUniqueUserId = function () {
     const s4 = () =>
       Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
@@ -12,7 +12,7 @@ module.exports = class Middleware {
     return s4() + s4() + "-" + s4();
   };
 
-  addClient = (connection) => {
+  addClient = function (connection) {
     const userId = this.#getUniqueUserId();
 
     this.clients[userId] = connection;
@@ -21,7 +21,7 @@ module.exports = class Middleware {
   };
 
   // send to all connected clients
-  broadcast = (data) => {
+  broadcast = function (data) {
     const { clients } = this;
 
     const json = JSON.stringify(data);
@@ -32,14 +32,14 @@ module.exports = class Middleware {
   };
 
   // send to a specific client
-  sendTo = (userId, data) => {
+  sendTo = function (userId, data) {
     const { clients } = this;
     const json = JSON.stringify(data);
 
     clients[userId].sendUTF(json);
   };
 
-  leave = (userId) => {
+  leave = function (userId) {
     delete this.clients[userId];
   };
 };

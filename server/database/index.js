@@ -1,7 +1,7 @@
 const lowdb = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 
-export default class Database {
+module.exports = class Database {
   constructor() {
     const adapter = new FileSync("db.json");
     const json = {};
@@ -9,4 +9,4 @@ export default class Database {
     this.db = lowdb(adapter);
     this.db.defaults(json).write();
   }
-}
+};

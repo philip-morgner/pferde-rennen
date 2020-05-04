@@ -1,4 +1,4 @@
-export default class Middleware {
+module.exports = class Middleware {
   constructor() {
     // all active connections
     this.clients = {};
@@ -49,4 +49,4 @@ export default class Middleware {
   leave(userId) {
     delete this.clients[userId];
   }
-}
+};

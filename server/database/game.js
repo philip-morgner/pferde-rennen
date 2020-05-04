@@ -2,7 +2,7 @@ const R = require("ramda");
 const Database = require("./index");
 const shuffle = require("../shuffle");
 
-export default class GameDB extends Database {
+module.exports = class GameDB extends Database {
   constructor(props) {
     super(props);
 
@@ -47,4 +47,4 @@ export default class GameDB extends Database {
   getGameId() {
     return Math.floor(Math.random() * 1000).toString();
   }
-}
+};

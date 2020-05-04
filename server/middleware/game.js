@@ -15,32 +15,32 @@ module.exports = class GameMW extends Middleware {
     this.gameDb = new GameDB();
   }
 
-  saveGame = function (userId, gameId) {
+  saveGame(userId, gameId) {
     // save creator's user id
     Object.assign(this.games, { [userId]: gameId });
     // enable game to join
     Object.assign(this.users, { [gameId]: [] });
-  };
+  }
 
-  addParticipant = function (userId, gameId) {
+  addParticipant(userId, gameId) {
     const { users } = this;
 
     users[gameId] = users[gameId].concat(userId);
-  };
+  }
 
-  getGameId = function (userId) {
+  getGameId(userId) {
     return this.games[userId];
-  };
+  }
 
-  removeGame = function (userId) {
+  removeGame(userId) {
     const gameId = this.getGameId(userId);
 
     this.gameDb.remove(gameId);
     delete this.games[userId];
-  };
+  }
 
   // send to all members in a group
-  sendToGameMembers = function (gameId, data) {
+  sendToGameMembers(gameId, data) {
     const { clients, users } = this;
 
     const json = JSON.stringify(data);
@@ -48,23 +48,23 @@ module.exports = class GameMW extends Middleware {
     users[gameId].forEach((userId) => {
       clients[userId].sendUTF(json);
     });
-  };
+  }
 
-  startGame = function (gameId) {
+  startGame(gameId) {
     const start = { started: true };
 
     this.sendToGameMembers(gameId, start);
-  };
+  }
 
-  restartGame = function (gameId) {
+  restartGame(gameId) {
     const { gameDb } = this;
 
     const cards = gameDb.update(gameId);
 
     this.sendToGameMembers(gameId, { cards, type: "restart" });
-  };
+  }
 
-  createGame = function (userId) {
+  createGame(userId) {
     const { gameDb } = this;
 
     const gameId = gameDb.create();
@@ -76,9 +76,9 @@ module.exports = class GameMW extends Middleware {
     const response = R.mergeAll([data, { type: "create" }]);
 
     this.sendTo(userId, response);
-  };
+  }
 
-  joinGame = function (userId, gameId) {
+  joinGame(userId, gameId) {
     const { gameDb } = this;
     try {
       const data = gameDb.find(gameId);
@@ -96,9 +96,9 @@ module.exports = class GameMW extends Middleware {
 
       this.sendTo(userId, data);
     }
-  };
+  }
 
-  leaveGame = function (userId, gameId) {
+  leaveGame(userId, gameId) {
     const { users } = this;
     if (!R.isNil(users[gameId])) {
       users[gameId] = users[gameId].filter((id) => id !== userId);
@@ -116,5 +116,5 @@ module.exports = class GameMW extends Middleware {
 
       this.sendToGameMembers(gameId, data);
     }
-  };
+  }
 };

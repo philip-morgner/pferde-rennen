@@ -13,6 +13,10 @@ const ssl_credentials = {
 
 const server = https.createServer(ssl_credentials);
 
+server.listen(config.server.port, () =>
+  console.log("Server is listening on port: ", config.server.port)
+);
+
 const wsServer = new webSocketServer({
   httpServer: server,
 });

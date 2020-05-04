@@ -4,7 +4,7 @@ const Boom = require("boom");
 const GameDB = require("../database/game");
 const Middleware = require("./index");
 
-module.exports = class GameMW extends Middleware {
+export default class GameMW extends Middleware {
   constructor(props) {
     super(props);
     // all active games by creators' user id
@@ -117,4 +117,4 @@ module.exports = class GameMW extends Middleware {
       this.sendToGameMembers(gameId, data);
     }
   }
-};
+}

@@ -1,4 +1,4 @@
-module.exports = class Middleware {
+export default class Middleware {
   constructor() {
     // all active connections
     this.clients = {};
@@ -27,7 +27,11 @@ module.exports = class Middleware {
     const json = JSON.stringify(data);
 
     Object.keys(clients).forEach((client) => {
-      clients[client].sendUTF(json);
+      try {
+        clients[client].sendUTF(json);
+      } catch (err) {
+        console.log("ERROR: ", err.message);
+      }
     });
   }
 
@@ -35,11 +39,14 @@ module.exports = class Middleware {
   sendTo(userId, data) {
     const { clients } = this;
     const json = JSON.stringify(data);
-
-    clients[userId].sendUTF(json);
+    try {
+      clients[userId].sendUTF(json);
+    } catch (err) {
+      console.log("ERROR: ", err.message);
+    }
   }
 
   leave(userId) {
     delete this.clients[userId];
   }
-};
+}

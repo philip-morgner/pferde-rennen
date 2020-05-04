@@ -18,6 +18,7 @@ export const raceTrack = css`
 
 export const grid = (row, col) => css`
   grid-area: ${row} / ${col} / ${row + 1} / ${col + 1};
+  justify-self: center;
   width: 80px;
   height: 50px;
   border-right: ${col === 1 || col === raceTrackLength

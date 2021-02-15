@@ -22,19 +22,19 @@ const validate = (gameId, error, prevError) => {
     const pathname = "/" + gameId;
     history.push(pathname);
   }
-  if (!isEmpty(error) && isEmpty(prevError)) {
+  if (error !== prevError) {
     return { error, gameId: "" };
   }
+
   return null;
 };
 
-class App extends React.Component {
+class Home extends React.Component {
   state = INITIAL_STATE;
 
   static getDerivedStateFromProps(props, state) {
     const { gameId, error } = props.response;
     const { error: prevErr } = state;
-
     return validate(gameId, error, prevErr);
   }
 
@@ -53,8 +53,17 @@ class App extends React.Component {
   handleJoin = () => {
     const { gameId } = this.state;
     const data = { type: "join", gameId };
-
+    this.setState({ error: "" });
+    console.log("error empty");
     client.sendMessage(data);
+  };
+
+  handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      this.handleJoin();
+    }
   };
 
   render() {
@@ -72,6 +81,7 @@ class App extends React.Component {
             onChange={this.handleChange}
             autoFocus
             value={gameId}
+            onKeyPress={this.handleKeyPress}
           />
           <button className={buttonStyle} onClick={this.handleJoin}>
             Join Game
@@ -85,4 +95,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default Home;

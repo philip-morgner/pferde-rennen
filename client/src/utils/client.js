@@ -1,5 +1,5 @@
 import { isNil } from "ramda";
-import { websocketUrl } from "../config.json";
+import { devWebsocketUrl as websocketUrl } from "../config.json";
 
 // self-invoking function with closure
 // init client once, then make available

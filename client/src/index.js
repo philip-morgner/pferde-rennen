@@ -28,12 +28,16 @@ class AppClient extends React.Component {
   handleOnMessage = (message) => {
     try {
       const data = JSON.parse(message.data);
+      console.log("AppClient -> handleOnMessage -> data", data);
 
       if (data.type === "error") {
         throw data.message;
       }
       if (data.type === "create") {
         this.setState({ isAdmin: true });
+      }
+      if (data.type === "join") {
+        this.setState({ isAdmin: false });
       }
       if (data.type === "restart") {
         const { cards } = data;

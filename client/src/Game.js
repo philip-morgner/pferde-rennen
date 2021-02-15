@@ -144,6 +144,7 @@ class Game extends React.Component {
 
   render() {
     const { isAdmin, start, restart, leave } = this.props;
+    console.log("Game -> render -> isAdmin", isAdmin);
     const { winner } = this.state;
 
     if (winner) {
@@ -158,12 +159,12 @@ class Game extends React.Component {
         </div>
         <div className={centeredStyle}>
           <button className={buttonStyle} onClick={leave}>
-            Zurück
+            Leave
           </button>
           {isAdmin &&
             (winner ? (
               <button className={buttonStyle} onClick={restart}>
-                Neues Rennen
+                Restart
               </button>
             ) : (
               <button className={buttonStyle} onClick={start}>

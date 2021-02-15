@@ -2,8 +2,9 @@ import React from "react";
 import { Redirect } from "react-router-dom";
 import { isEmpty } from "ramda";
 
-import { layout, titleStyle, linksStyle } from "../styles";
+import { layout, titleStyle } from "../styles";
 import Game from "../Game";
+import IconCredits from "./IconCredits";
 
 import client from "../utils/client";
 import history from "../utils/history";
@@ -27,27 +28,6 @@ class App extends React.Component {
     history.replace("/");
   };
 
-  renderIconCreadits = () => {
-    return (
-      <div className={linksStyle}>
-        Icons:
-        <a href="https://icons8.com/icon/39707/joker">Joker icon by Icons8</a>
-        <a href="https://icons8.com/icon/24740/ace-of-clubs">
-          Ace of Clubs icon by Icons8
-        </a>
-        <a href="https://icons8.com/icon/39682/ace-of-spades">
-          Ace of Spades icon by Icons8
-        </a>
-        <a href="https://icons8.com/icon/39679/ace-of-hearts">
-          Ace of Hearts icon by Icons8
-        </a>
-        <a href="https://icons8.com/icon/39677/ace-of-diamonds">
-          Ace of Diamonds icon by Icons8
-        </a>
-      </div>
-    );
-  };
-
   render() {
     const { cards, gameId, isAdmin, started } = this.props;
 
@@ -67,7 +47,7 @@ class App extends React.Component {
           started={started}
           isAdmin={isAdmin}
         />
-        {this.renderIconCreadits()}
+        <IconCredits />
       </div>
     );
   }

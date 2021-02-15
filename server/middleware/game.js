@@ -1,15 +1,17 @@
-const R = require("ramda");
+const { mergeAll, isNil } = require("ramda");
 const Boom = require("boom");
 
 const GameDB = require("../database/game");
 const Middleware = require("./index");
 
-module.exports = class GameMW extends Middleware {
+module.exports = class GameMW extends (
+  Middleware
+) {
   constructor(props) {
     super(props);
-    // all active games by creators' user id
+    // the active game of each creators' user id
     this.games = {};
-    // all user ids for each game id
+    // all user ids (except creator's id) for each game id
     this.users = {};
 
     this.gameDb = new GameDB();
@@ -35,8 +37,12 @@ module.exports = class GameMW extends Middleware {
   removeGame(userId) {
     const gameId = this.getGameId(userId);
 
-    this.gameDb.remove(gameId);
-    delete this.games[userId];
+    try {
+      this.gameDb.remove(gameId);
+      delete this.games[userId];
+    } catch (error) {
+      console.error("hier", error);
+    }
   }
 
   // send to all members in a group
@@ -73,7 +79,7 @@ module.exports = class GameMW extends Middleware {
     this.saveGame(userId, gameId);
     this.addParticipant(userId, gameId);
 
-    const response = R.mergeAll([data, { type: "create" }]);
+    const response = mergeAll([data, { type: "create" }]);
 
     this.sendTo(userId, response);
   }
@@ -83,10 +89,10 @@ module.exports = class GameMW extends Middleware {
     try {
       const data = gameDb.find(gameId);
 
-      if (R.isNil(data)) {
+      if (isNil(data)) {
         throw Boom.notFound("Game id: " + gameId + " not found");
       }
-      const response = R.mergeAll([data, { type: "join" }]);
+      const response = mergeAll([data, { type: "join" }]);
 
       this.addParticipant(userId, gameId);
 
@@ -99,14 +105,14 @@ module.exports = class GameMW extends Middleware {
   }
 
   leaveGame(userId, gameId) {
-    const { users } = this;
-    if (!R.isNil(users[gameId])) {
+    const { users, games } = this;
+    if (!isNil(users[gameId])) {
       users[gameId] = users[gameId].filter((id) => id !== userId);
     }
     this.sendTo(userId, { type: "leave", gameId: "" });
 
     try {
-      const isCreator = Object.keys(this.games).includes(userId);
+      const isCreator = Object.keys(games).includes(userId);
 
       if (isCreator) {
         throw Boom.notFound("Creator of game id: " + gameId + " left");

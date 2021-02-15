@@ -1,5 +1,6 @@
 {
   "websocketUrl": "wss://games.mabiphmo.de/api",
+  "devWebsocketUrl": "ws://localhost:8000",
   "raceTrackLength": 8,
   "horses": ["clubs", "spades", "hearts", "diamonds"],
   "icons": {

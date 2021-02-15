@@ -47,6 +47,10 @@ module.exports = class Middleware {
   }
 
   leave(userId) {
-    delete this.clients[userId];
+    try {
+      delete this.clients[userId];
+    } catch (error) {
+      console.error(error);
+    }
   }
 };

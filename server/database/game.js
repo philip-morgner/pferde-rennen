@@ -1,8 +1,10 @@
-const R = require("ramda");
+const { times } = require("ramda");
 const Database = require("./index");
 const shuffle = require("../shuffle");
 
-module.exports = class GameDB extends Database {
+module.exports = class GameDB extends (
+  Database
+) {
   constructor(props) {
     super(props);
 
@@ -39,7 +41,7 @@ module.exports = class GameDB extends Database {
 
   prepareCards() {
     let cards = [];
-    this.horses.forEach((horse) => R.times(() => cards.push(horse), 12));
+    this.horses.forEach((horse) => times(() => cards.push(horse), 12));
 
     return shuffle(cards);
   }

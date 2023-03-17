@@ -35,9 +35,10 @@ export const sidecardStyle = (show, col) => css`
 export const buttonStyle = css({
   display: "flex",
   backgroundColor: "#F39C12",
-  padding: "8px 16px",
+
   border: "1px solid #F39C12",
   justifyContent: "center",
+  alignItems: "center",
   boxShadow: "2px 2px 2px 1px rgba(0, 0, 0, 0.2)",
   marginTop: "16px",
   width: "128px",

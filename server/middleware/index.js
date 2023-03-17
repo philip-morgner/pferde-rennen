@@ -1,23 +1,23 @@
-module.exports = class Middleware {
+const { v4: uuidv4 } = require("uuid");
+const { dissoc } = require("ramda");
+
+module.exports = class ClientMiddleware {
   constructor() {
     // all active connections
     this.clients = {};
   }
 
-  getUniqueUserId() {
-    const s4 = () =>
-      Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    return s4() + s4() + "-" + s4();
-  }
-
+  // add client
   addClient(connection) {
-    const userId = this.getUniqueUserId();
+    try {
+      const userId = uuidv4();
 
-    this.clients[userId] = connection;
+      this.clients[userId] = connection;
 
-    return userId;
+      return userId;
+    } catch (error) {
+      console.log("ERROR: addClient.", error.message);
+    }
   }
 
   // send to all connected clients
@@ -29,8 +29,8 @@ module.exports = class Middleware {
     Object.keys(clients).forEach((client) => {
       try {
         clients[client].sendUTF(json);
-      } catch (err) {
-        console.log("ERROR: ", err.message);
+      } catch (error) {
+        console.log("ERROR: broadcast.", error.message);
       }
     });
   }
@@ -41,16 +41,17 @@ module.exports = class Middleware {
     const json = JSON.stringify(data);
     try {
       clients[userId].sendUTF(json);
-    } catch (err) {
-      console.log("ERROR: ", err.message);
+    } catch (error) {
+      console.log("ERROR: sendTo.", error.message);
     }
   }
 
+  // remove client
   leave(userId) {
     try {
-      delete this.clients[userId];
+      this.clients = dissoc(userId, clients);
     } catch (error) {
-      console.error(error);
+      console.log("ERROR: leave.", error);
     }
   }
 };

@@ -31,7 +31,7 @@ class AppClient extends React.Component {
       console.log("AppClient -> handleOnMessage -> data", data);
 
       if (data.type === "error") {
-        throw data.message;
+        throw new Error(data.message);
       }
       if (data.type === "create") {
         this.setState({ isAdmin: true });

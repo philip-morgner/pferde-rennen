@@ -44,7 +44,7 @@ devWsServer.on("request", function (req) {
   const userId = mw.addClient(connection);
   console.log("User Id", userId, " assigned to", req.origin);
 
-  //   on message
+  // on message
   connection.on("message", function (message) {
     console.log("message", message);
     try {
@@ -68,11 +68,11 @@ devWsServer.on("request", function (req) {
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error(`[ON MESSAGE] Action: ${type}`, error.message);
     }
   });
 
-  //   on close
+  // on close
   connection.on("close", function () {
     try {
       console.log(" User " + userId + " kann nicht mehr. Zeit: " + new Date());
@@ -82,7 +82,7 @@ devWsServer.on("request", function (req) {
       mw.leave(userId);
       mw.broadcast(JSON.stringify(json));
     } catch (error) {
-      console.error(error.message);
+      console.error("[ON CLOSE]", error.message);
     }
   });
 });

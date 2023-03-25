@@ -5,9 +5,8 @@
   "author": "Philip Morgner",
   "license": "MIT",
   "dependencies": {
-    "boom": "^7.3.0",
-    "lowdb": "^1.0.0",
     "ramda": "^0.27.0",
+    "uuid": "^9.0.0",
     "websocket": "^1.0.31"
   },
   "scripts": {

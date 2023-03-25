@@ -3,8 +3,9 @@ import { Redirect } from "react-router-dom";
 import { isEmpty } from "ramda";
 
 import { layout, titleStyle } from "../styles";
-import Game from "../Game";
-import IconCredits from "./IconCredits";
+import { title } from "../config";
+import Game from "../components/Game";
+import IconCredits from "../components/IconCredits";
 
 import client from "../utils/client";
 import history from "../utils/history";
@@ -23,6 +24,7 @@ class App extends React.Component {
   };
 
   handleLeave = (gameId) => () => {
+    console.log("leave");
     client.sendMessage({ type: "leave", gameId });
 
     history.replace("/");
@@ -35,10 +37,12 @@ class App extends React.Component {
       return <Redirect replace to="/" />;
     }
 
+    const subtitle = `Game Id: ${gameId}`;
+
     return (
       <div className={layout}>
-        <h1 className={titleStyle}>Pferderennen</h1>
-        <h4>Game Id: {gameId}</h4>
+        <h1 className={titleStyle}>{title}</h1>
+        <h4>{subtitle}</h4>
         <Game
           cards={cards}
           start={this.handleStart(gameId)}

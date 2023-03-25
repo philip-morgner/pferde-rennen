@@ -1,6 +1,10 @@
-// The de-facto unbiased shuffle algorithm is the Fisher-Yates (aka Knuth) Shuffle.
+const { repeat, flatten } = require("ramda");
 
-module.exports = function shuffle(array) {
+const HORSES = ["clubs", "spades", "hearts", "diamonds"];
+const COUNT = 12; // each horse appears 12 times in a deck of 52 cards
+
+// The de-facto unbiased shuffle algorithm is the Fisher-Yates (aka Knuth) Shuffle.
+const shuffle = (array) => {
   var currentIndex = array.length,
     temporaryValue,
     randomIndex;
@@ -19,3 +23,11 @@ module.exports = function shuffle(array) {
 
   return array;
 };
+
+const shuffleCards = () => {
+  const cards = flatten(HORSES.map((horse) => repeat(horse, COUNT)));
+
+  return shuffle(cards);
+};
+
+module.exports = { shuffleCards };

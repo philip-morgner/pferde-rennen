@@ -7,8 +7,8 @@ import {
   buttonStyle,
   centeredStyle,
   gameLayout,
-} from "./styles";
-import { horses, raceTrackLength, icons } from "./config";
+} from "../styles";
+import { horses, raceTrackLength, icons } from "../config";
 
 const INITIAL_STATE = {
   horses: horses.reduce((obj, horse) => ({ ...obj, [horse]: 0 }), {}),
@@ -144,7 +144,6 @@ class Game extends React.Component {
 
   render() {
     const { isAdmin, start, restart, leave } = this.props;
-    console.log("Game -> render -> isAdmin", isAdmin);
     const { winner } = this.state;
 
     if (winner) {

@@ -1,5 +1,5 @@
 const https = require("https");
-const http = require("http");
+// const http = require("http");
 const fs = require("fs");
 const webSocketServer = require("websocket").server;
 
@@ -7,36 +7,36 @@ const config = require("./config");
 const GameMW = require("./middleware/game");
 
 // secure websocket server setup
-// const ssl_credentials = {
-// key: fs.readFileSync(config.ssl.key),
-// cert: fs.readFileSync(config.ssl.cert),
-// };
+const ssl_credentials = {
+  key: fs.readFileSync(config.ssl.key),
+  cert: fs.readFileSync(config.ssl.cert),
+};
 
-// const server = https.createServer(ssl_credentials);
+const server = https.createServer(ssl_credentials);
 
-// server.listen(config.server.port, () =>
-//   console.log("Server is listening on port: ", config.server.port)
-// );
-
-// const wsServer = new webSocketServer({
-//   httpServer: server,
-// });
-
-const devServer = http.createServer();
-
-devServer.listen(config.server.port, () =>
+server.listen(config.server.port, () =>
   console.log("Server is listening on port: ", config.server.port)
 );
 
-const devWsServer = new webSocketServer({
-  httpServer: devServer,
+const wsServer = new webSocketServer({
+  httpServer: server,
 });
+
+// const devServer = http.createServer();
+
+// devServer.listen(config.server.port, () =>
+//   console.log("Server is listening on port: ", config.server.port)
+// );
+
+// const devWsServer = new webSocketServer({
+//   httpServer: devServer,
+// });
 
 // middleware
 const mw = new GameMW();
 
 // websocket
-devWsServer.on("request", function (req) {
+wsServer.on("request", function (req) {
   console.log("Neue Verbindung von " + req.origin + ". Zeit: " + new Date());
 
   // rewrite this part of the code to accept only the requests from allowed origin
